@@ -1,0 +1,2 @@
+# Music-Recognition-with-CNN
+Project 9: Music genre recognition from spectrograms Students: Nicolas PetitjeanRasul Dent Task: Audio classification from the input spectrograms (treated as images) Model: Convolutional neural network Dataset: https://www.kaggle.com/andradaolteanu/gtzan-dataset-music-genre-classification
