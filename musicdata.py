@@ -26,7 +26,7 @@ class MusicDataset(Dataset):
         self.dev_labels = self.create_labels(self.dev)
         self.dev = zip(self.dev, self.dev_labels)
         self.test_labels = self.create_labels(self.test)
-        self.test = zip(self.test_labels)
+        self.test = zip(self.test, self.test_labels)
         if train:
             self.files = list(self.train)
         elif dev:

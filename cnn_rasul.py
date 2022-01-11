@@ -9,28 +9,26 @@ from skimage import io, transform
 from torch.utils.data import DataLoader, random_split, Subset
 from musicdata import MusicDataset
 
-
 #copied from lab3
-class MusicCNN(nn.Module):
-    def (self, num_channels1=16, num_channels2=32, num_classes=10):
-        super(CNNClassif_bnorm, self).__init__()
-        
+class CNNClassif(nn.Module):
+    def __init__(self, num_channels1=288, num_channels2=64, num_classes=10):
+        super(CNNClassif, self).__init__()
         self.cnn_layer1 = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=3, padding=1),
+            nn.Conv2d(num_channels1, num_channels2, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(16),
             nn.MaxPool2d(kernel_size=2))
             
         self.cnn_layer2 = nn.Sequential(
-            nn.Conv2d(16, 32, kernel_size=3, padding=1),
+                nn.Conv2d(num_channels2, 16, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.BatchNorm2d(32),
+            nn.BatchNorm2d(16),
             nn.MaxPool2d(kernel_size=2))
         
-        self.lin_layer = nn.Linear(7*7*32, num_classes)
+        self.lin_layer = nn.Linear(1728, num_classes)
         
     def forward(self, x):
-        
+        x = x.float()
         out = self.cnn_layer1(x)
         out = self.cnn_layer2(out)
         out = out.reshape(out.size(0), -1)
@@ -92,11 +90,15 @@ def eval_classifier(model, eval_dataloader, device='cpu', verbose=True):
             labels = labels.to(device)
             y_predicted = model(images)
             _, label_predicted = torch.max(y_predicted.data, 1)
+            print(label_predicted, labels)
             total += labels.size(0)
             correct += (label_predicted == labels).sum().item()
     
     accuracy = 100 * correct / total
     return accuracy
+
+
+
 
 # Choose one (or several) transform(s) to preprocess the data
 data_transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
@@ -116,14 +118,14 @@ print(input_size)
 
 #Parameters
 num_classes = 10
-num_epochs = 20
+num_epochs = 40
 loss_fn = nn.CrossEntropyLoss()
-learning_rate = 0.01
+learning_rate = 0.02
 
 # CNN
-num_channels1 = 16
-num_channels2 = 32
-model_cnn = MusicCNN(num_channels1, num_channels2, num_classes)
-model_cnn, loss_total_cnn = training_classifier(model_cnn, train_dataloader, num_epochs, loss_fn, learning_rate, is_mlp=False, device=device, verbose=True)
-accuracy_cnn = eval_classifier(model_cnn, test_dataloader, is_mlp=False, device=device, verbose=True)
-
+num_channels1 = 288
+num_channels2 = 16
+model_cnn = CNNClassif(num_channels1, num_channels2, num_classes)
+model_cnn, loss_total_cnn = training_classifier(model_cnn, train_dataloader, num_epochs, loss_fn, learning_rate, device=device, verbose=True)
+accuracy_cnn = eval_classifier(model_cnn, test_dataloader, device=device, verbose=True)
+print(accuracy_cnn)
